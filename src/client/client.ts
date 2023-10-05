@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 
-import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min'
+// import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min'
 
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls'
@@ -218,6 +218,41 @@ function init() {
     })
     // ==============================
 
+    // ===========MOUSEMOVE==========
+    document.addEventListener('mousemove', (event) => {
+        // Mendapatkan posisi mouse dalam koordinat normalized device coordinates (NDC)
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1
+
+        // Lakukan raycasting untuk mendeteksi objek yang disorot oleh kursor
+        raycaster.setFromCamera(mouse, camera)
+
+        const intersects = raycaster.intersectObjects(cubes)
+
+        if (intersects.length > 0) {
+            const hoveredObject = intersects[0].object as THREE.Mesh
+            const hoveredIndex = hoveredObject.userData.id // Menggunakan userData.id yang sudah didefinisikan sebelumnya
+            let hoveredName = ''
+            let hoveredInstansi = ''
+
+            // Cari objek dengan ID yang sesuai dalam array dataDevice
+            const foundObject = dataDevice.find((item) => item.id === hoveredIndex)
+
+            if (foundObject) {
+                // Jika objek ditemukan, ambil properti
+                hoveredName = foundObject.name
+                hoveredInstansi = foundObject.instansi
+            }
+
+            const infoDiv = document.getElementById('info')
+            infoDiv.innerHTML = `ID: ${hoveredIndex}<br>Name: ${hoveredName}<br>Instansi: ${hoveredInstansi}`
+        } else {
+            const infoDiv = document.getElementById('info')
+            infoDiv.textContent = ''
+        }
+    })
+    // ==============================
+
     // =============GRID=============
     const helper = new THREE.GridHelper(10000, 60)
     helper.position.y = 0
@@ -233,8 +268,8 @@ function init() {
     container.appendChild(renderer.domElement)
 
     //GUI
-    const gui = new GUI()
-    gui.open()
+    // const gui = new GUI()
+    // gui.open()
 
     // Controls
     const controls = new OrbitControls(camera, renderer.domElement)
