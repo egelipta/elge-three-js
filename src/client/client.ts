@@ -22,7 +22,89 @@ function init() {
     scene.add(camera)
     scene.add(new THREE.AmbientLight(0xf0f0f0, 3))
 
-    // ==============CONTENT=========
+    // ============CONTENT===========
+
+    // ========================RACK 1=======================
+    const posLeftRightRack = 0
+    const posTopBottomRack = 1890 / 2 // 1890 / 2
+    const posFrontBackRack = 1200 / 2 + (1200 - 1200) / 2 // tadinya -600
+    const warnaRack = 0x000000 // hitam
+
+    const geometryRack = new THREE.BoxGeometry(600, 1890, 1200)
+    const materialRack = new THREE.MeshBasicMaterial({
+        color: warnaRack,
+        transparent: true,
+        opacity: 0.8,
+    })
+
+    const pintu = new THREE.MeshBasicMaterial({
+        color: 0x0a0a0a,
+        transparent: true,
+        opacity: 0,
+    })
+    const materialsRack = [
+        materialRack, // Right
+        materialRack, // Left
+        materialRack, // Top
+        materialRack, // Bottom
+        pintu, // Front
+        pintu, // Back
+    ]
+    const cubeRack = new THREE.Mesh(geometryRack, materialsRack)
+    cubeRack.position.set(posLeftRightRack, posTopBottomRack, posFrontBackRack)
+    scene.add(cubeRack)
+
+    // garis tepi (outline) untuk rack
+    const edgesRack = new THREE.EdgesGeometry(geometryRack)
+    const outlineMaterialRack = new THREE.LineBasicMaterial({
+        color: 0x000000, // Warna hitam
+        linewidth: 2,
+    })
+    const outlineRack = new THREE.LineSegments(edgesRack, outlineMaterialRack)
+
+    cubeRack.add(outlineRack)
+    // ===================================================
+
+    // ========================RACK 2=======================
+    const posLeftRightRack2 = 800 / 2 + 600 / 2
+    const posTopBottomRack2 = (45 * 45) / 2 // tadinya 755
+    const posFrontBackRack2 = 1200 / 2 + (1200 - 1000) / 2 // tadinya -600
+    const warnaRack2 = 0x000000 // hitam
+
+    const geometryRack2 = new THREE.BoxGeometry(800, 45 * 45, 1000)
+    const materialRack2 = new THREE.MeshBasicMaterial({
+        color: warnaRack2,
+        transparent: true,
+        opacity: 0.8,
+    })
+
+    const pintu2 = new THREE.MeshBasicMaterial({
+        color: 0x0a0a0a,
+        transparent: true,
+        opacity: 0,
+    })
+    const materialsRack2 = [
+        materialRack2, // Right
+        materialRack2, // Left
+        materialRack2, // Top
+        materialRack2, // Bottom
+        pintu, // Front
+        pintu, // Back
+    ]
+    const cubeRack2 = new THREE.Mesh(geometryRack2, materialsRack2)
+    cubeRack2.position.set(posLeftRightRack2, posTopBottomRack2, posFrontBackRack2)
+    scene.add(cubeRack2)
+
+    // garis tepi (outline) untuk rack2
+    const edgesRack2 = new THREE.EdgesGeometry(geometryRack2)
+    const outlineMaterialRack2 = new THREE.LineBasicMaterial({
+        color: 0x000000, // Warna hitam
+        linewidth: 2,
+    })
+    const outlineRack2 = new THREE.LineSegments(edgesRack2, outlineMaterialRack2)
+
+    cubeRack2.add(outlineRack2)
+    // ===================================================
 
     // ==============================
 
