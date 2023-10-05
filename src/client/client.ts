@@ -253,6 +253,105 @@ function init() {
     })
     // ==============================
 
+    // =============CLICK============
+    let originalCubeColor = 0
+    let selectedCube = null
+
+    document.addEventListener('click', (_event) => {
+        // Kembalikan warna cubeDevice yang sebelumnya diklik
+        if (selectedCube) {
+            selectedCube.material[4].color.setHex(originalCubeColor)
+            selectedCube = null
+        }
+
+        // Lakukan raycasting untuk mendeteksi objek yang diklik
+        raycaster.setFromCamera(mouse, camera)
+
+        const intersects = raycaster.intersectObjects(cubes)
+
+        if (intersects.length > 0) {
+            const clickedObject = intersects[0].object as THREE.Mesh
+
+            // Simpan warna asli cubeDevice yang diklik
+            originalCubeColor = clickedObject.material[4].color.getHex()
+
+            // Ubah warna cubeDevice yang diklik
+            clickedObject.material[4].color.set(0x3afa05) // Misalnya, ubah warna menjadi hijau
+            selectedCube = clickedObject
+
+            // Temukan data cubeDevice berdasarkan ID
+            // const clickedData = data.find((item) => item.id === clickedObject.userData.id)
+
+            // if (clickedData) {
+            //     // Gabungkan data menjadi satu string
+            //     const geometryData = `Width: ${clickedData.geometryDevice.parameters.width}\nHeight: ${clickedData.geometryDevice.parameters.height}\nDepth: ${clickedData.geometryDevice.parameters.depth}`
+            //     const dataString = `ID: ${clickedData.id}\nName: ${clickedData.name}\nInstansi: ${clickedData.instansi}\nGeometry:\n${geometryData}`
+
+            //     // Buka tab baru dan tampilkan data
+            //     const newWindow = window.open('', 'Device Info', 'width=400,height=300')
+            //     newWindow.document.write(`
+            //     <h1>Device Info</h1>
+            //     <table border='solid'>
+            //         <tr>
+            //             <th>ID</th>
+            //             <th>Device Name</th>
+            //             <th>Instansi</th>
+            //         </tr>
+            //         <tr>
+            //             <td>${clickedData.id}</td>
+            //             <td>${clickedData.name}</td>
+            //             <td>${clickedData.instansi}</td>
+            //         </tr>
+            //         </table>
+            //     <pre>${dataString}</pre>`)
+            //     newWindow.document.close()
+            // }
+
+            // console.log(`${clickedData.id}`)
+        }
+    })
+
+    document.addEventListener('dblclick', (_event) => {
+        // Lakukan raycasting untuk mendeteksi objek yang diklik
+        raycaster.setFromCamera(mouse, camera)
+
+        const intersects = raycaster.intersectObjects(cubes)
+
+        if (intersects.length > 0) {
+            const clickedObject = intersects[0].object as THREE.Mesh
+
+            // Temukan data cubeDevice berdasarkan ID
+            const clickedData = dataDevice.find((item) => item.id === clickedObject.userData.id)
+
+            if (clickedData) {
+                // Gabungkan data menjadi satu string
+                const geometryData = `Width: ${clickedData.geometryDevice.parameters.width}\nHeight: ${clickedData.geometryDevice.parameters.height}\nDepth: ${clickedData.geometryDevice.parameters.depth}`
+                const dataString = `ID: ${clickedData.id}\nName: ${clickedData.name}\nInstansi: ${clickedData.instansi}\nGeometry:\n${geometryData}`
+
+                // Buka tab baru dan tampilkan data
+                const newWindow = window.open('', 'Device Info', '')
+                console.table(clickedData)
+                newWindow.document.write(`
+                <h1>Device Info</h1>
+                <table border='solid'>
+                    <tr>
+                        <th>ID</th>
+                        <th>Device Name</th>
+                        <th>Instansi</th>
+                    </tr>
+                    <tr>
+                        <td>${clickedData.id}</td>
+                        <td>${clickedData.name}</td>
+                        <td>${clickedData.instansi}</td>
+                    </tr>
+                    </table>
+                <pre>${dataString}</pre>`)
+                newWindow.document.close()
+            }
+        }
+    })
+    // ==============================
+
     // =============GRID=============
     const helper = new THREE.GridHelper(10000, 60)
     helper.position.y = 0
