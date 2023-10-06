@@ -1,13 +1,16 @@
 import * as THREE from 'three'
+import * as dat from 'dat.gui'
 
 // import { GUI } from 'three/examples/jsm/libs/lil-gui.module.min'
-
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls'
 
 let container
 let camera, scene, renderer
 let transformControl
+
+const onUpPosition = new THREE.Vector2()
+const onDownPosition = new THREE.Vector2()
 
 init()
 
@@ -19,10 +22,21 @@ function init() {
 
     camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 1, 50000) // 50000 = jarak pandang
     camera.position.set(8000, 8000, 10000)
-    scene.add(camera)
-    scene.add(new THREE.AmbientLight(0xf0f0f0, 3))
 
-    // ============RACK1=============
+    // scene.add(new THREE.AmbientLight(0xf0f0f0, 3))
+    // const light = new THREE.SpotLight(0xffffff, 4.5)
+    // light.position.set(0, 1500, 200)
+    // light.angle = Math.PI * 0.2
+    // light.decay = 0
+    // light.castShadow = true
+    // light.shadow.camera.near = 200
+    // light.shadow.camera.far = 2000
+    // light.shadow.bias = -0.000222
+    // light.shadow.mapSize.width = 1024
+    // light.shadow.mapSize.height = 1024
+    // scene.add(light)
+
+    // ==========RACK 1==========
     const posLeftRightRack = 0
     const posTopBottomRack = 1890 / 2 // 1890 / 2
     const posFrontBackRack = 1200 / 2 + (1200 - 1200) / 2 // tadinya -600
@@ -61,9 +75,9 @@ function init() {
     const outlineRack = new THREE.LineSegments(edgesRack, outlineMaterialRack)
 
     cubeRack.add(outlineRack)
-    // ================================
+    // ==========================
 
-    // =============RACK2==============
+    // ==========RACK 2==========
     const posLeftRightRack2 = 800 / 2 + 600 / 2
     const posTopBottomRack2 = (45 * 45) / 2 // tadinya 755
     const posFrontBackRack2 = 1200 / 2 + (1200 - 1000) / 2 // tadinya -600
@@ -102,9 +116,9 @@ function init() {
     const outlineRack2 = new THREE.LineSegments(edgesRack2, outlineMaterialRack2)
 
     cubeRack2.add(outlineRack2)
-    // ==============================
+    // ==========================
 
-    // ============DEVICE============
+    // ==========DEVICE==========
     const textureLoader = new THREE.TextureLoader()
     const warnaDevice = 0x424242 // Warna abu-abu
     const satuanU = 45
@@ -216,9 +230,9 @@ function init() {
         cubeDevice.add(outlineDevice)
         cubeDevice.userData.id = config.id
     })
-    // ==============================
+    // ==========================
 
-    // ===========MOUSEMOVE==========
+    // ========MOUSEMOVE=========
     document.addEventListener('mousemove', (event) => {
         // Mendapatkan posisi mouse dalam koordinat normalized device coordinates (NDC)
         mouse.x = (event.clientX / window.innerWidth) * 2 - 1
@@ -231,29 +245,60 @@ function init() {
 
         if (intersects.length > 0) {
             const hoveredObject = intersects[0].object as THREE.Mesh
-            const hoveredIndex = hoveredObject.userData.id // Menggunakan userData.id yang sudah didefinisikan sebelumnya
-            let hoveredName = ''
-            let hoveredInstansi = ''
+            const hoveredIndex = hoveredObject.userData.id
 
             // Cari objek dengan ID yang sesuai dalam array dataDevice
             const foundObject = dataDevice.find((item) => item.id === hoveredIndex)
 
             if (foundObject) {
-                // Jika objek ditemukan, ambil properti
-                hoveredName = foundObject.name
-                hoveredInstansi = foundObject.instansi
+                // Jika objek ditemukan, perbarui nilai variabel-variabel di GUI
+                guiData.ID = hoveredIndex
+                guiData.Name = foundObject.name
+                guiData.Instansi = foundObject.instansi
             }
-
-            const infoDiv = document.getElementById('info')
-            infoDiv.innerHTML = `ID: ${hoveredIndex}<br>Name: ${hoveredName}<br>Instansi: ${hoveredInstansi}`
         } else {
-            const infoDiv = document.getElementById('info')
-            infoDiv.textContent = ''
+            // Reset nilai jika tidak ada objek yang disorot
+            guiData.ID = ''
+            guiData.Name = ''
+            guiData.Instansi = ''
         }
     })
-    // ==============================
 
-    // =============CLICK============
+    // document.addEventListener('mousemove', (event) => {
+    //     // Mendapatkan posisi mouse dalam koordinat normalized device coordinates (NDC)
+    //     mouse.x = (event.clientX / window.innerWidth) * 2 - 1
+    //     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1
+
+    //     // Lakukan raycasting untuk mendeteksi objek yang disorot oleh kursor
+    //     raycaster.setFromCamera(mouse, camera)
+
+    //     const intersects = raycaster.intersectObjects(cubes)
+
+    //     if (intersects.length > 0) {
+    //         const hoveredObject = intersects[0].object as THREE.Mesh
+    //         const hoveredIndex = hoveredObject.userData.id // Menggunakan userData.id yang sudah didefinisikan sebelumnya
+    //         let hoveredName = ''
+    //         let hoveredInstansi = ''
+
+    //         // Cari objek dengan ID yang sesuai dalam array dataDevice
+    //         const foundObject = dataDevice.find((item) => item.id === hoveredIndex)
+
+    //         if (foundObject) {
+    //             // Jika objek ditemukan, ambil properti
+    //             hoveredName = foundObject.name
+    //             hoveredInstansi = foundObject.instansi
+    //         }
+
+    //         const infoDiv = document.getElementById('info')
+    //         infoDiv.innerHTML = `ID: ${hoveredIndex}<br>Name: ${hoveredName}<br>Instansi: ${hoveredInstansi}`
+    //     } else {
+    //         const infoDiv = document.getElementById('info')
+    //         infoDiv.textContent = ''
+    //     }
+    // })
+    // ==========================
+
+    // ===========CLICK==========
     let originalCubeColor = 0
     let selectedCube = null
 
@@ -350,29 +395,72 @@ function init() {
             }
         }
     })
-    // ==============================
+    // ==========================
 
-    // =============GRID=============
+    // ============GRID==========
+    // const material = new THREE.MeshPhongMaterial({
+    //     color: 0xc9c9c9,
+    //     shininess: 10,
+    //     specular: 0x111111,
+    // })
+
+    // // Lantai
+    // const geometry = new THREE.BoxGeometry(10, 0.05, 10)
+    // const ground = new THREE.Mesh(geometry, material)
+    // ground.scale.multiplyScalar(1000)
+    // ground.castShadow = false
+    // ground.receiveShadow = true
+    // ground.position.setY(-60 / 2) // Mengatur posisi y lantai ke bawah 0
+
+    // scene.add(ground)
+
+    // // Material untuk outline
+    // const outlineMaterial = new THREE.LineBasicMaterial({
+    //     color: 0x000000, // Warna outline
+    // })
+
+    // // Membuat outline menggunakan EdgesGeometry
+    // const edges = new THREE.EdgesGeometry(geometry)
+    // const outlineGround = new THREE.LineSegments(edges, outlineMaterial)
+    // outlineGround.scale.copy(ground.scale)
+    // outlineGround.position.copy(ground.position)
+    // outlineGround.position.setY(-50 / 2) // Mengatur posisi y outline ke bawah 0
+    // scene.add(outlineGround)
+
     const helper = new THREE.GridHelper(10000, 60)
     helper.position.y = 0
     helper.material.opacity = 0.5 // sebelumnya 0.25
     helper.material.transparent = true
     scene.add(helper)
-    // ==============================
+    // ==========================
 
+    // ===========RENDER=========
     renderer = new THREE.WebGLRenderer({ antialias: true })
     renderer.setPixelRatio(window.devicePixelRatio)
     renderer.setSize(window.innerWidth, window.innerHeight)
     renderer.shadowMap.enabled = true
     container.appendChild(renderer.domElement)
+    // ==========================
 
-    //GUI
+    // ============GUI===========
+    const gui = new dat.GUI()
+    const guiData = {
+        ID: '',
+        Name: '',
+        Instansi: '',
+    }
+    const folder = gui.addFolder('Information')
+    folder.add(guiData, 'ID').name('ID').listen()
+    folder.add(guiData, 'Name').name('Name').listen()
+    folder.add(guiData, 'Instansi').name('Instansi').listen()
+
     // const gui = new GUI()
     // gui.open()
+    // ==========================
 
-    // Controls
+    // =========CONTROLS=========
     const controls = new OrbitControls(camera, renderer.domElement)
-
+    // controls.damping = 0.2
     controls.addEventListener('change', render)
 
     transformControl = new TransformControls(camera, renderer.domElement)
@@ -382,9 +470,29 @@ function init() {
     })
     scene.add(transformControl)
 
+    transformControl.addEventListener('objectChange', function () {})
+
+    document.addEventListener('pointerdown', onPointerDown)
+    document.addEventListener('pointerup', onPointerUp)
+
     render()
 }
 
 function render() {
     renderer.render(scene, camera)
+}
+
+function onPointerDown(event) {
+    onDownPosition.x = event.clientX
+    onDownPosition.y = event.clientY
+}
+
+function onPointerUp(event) {
+    onUpPosition.x = event.clientX
+    onUpPosition.y = event.clientY
+
+    if (onDownPosition.distanceTo(onUpPosition) === 0) {
+        transformControl.detach()
+        render()
+    }
 }
